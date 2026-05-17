@@ -3,29 +3,21 @@
 using namespace std;
 
 //default constructor
-Player::Player()
+Player::Player(): name("Hero"), health(100), maxHealth(100), attackPower(10), inventory(5)
 {
-    name = "Hero";
-    health = 100;
-    maxHealth = 100;
-    attackPower = 10;
-    cout << "Default constructor called." << endl;
+    cout << "Default constructor called for Player." << endl;
 }
 
 //overloaded constructor
-Player::Player(string name, int health, int attackPower)
+Player::Player(string name, int health, int attackPower, int capacity): name(name), health(health), maxHealth(health), attackPower(attackPower), inventory(capacity)
 {
-    this->name = name;
-    this->health = health;
-    this->maxHealth = health;
-    this->attackPower = attackPower;
-    cout << "Overloaded constructor called." << endl;
+    cout << "Overloaded constructor called for Player." << endl;
 }
 
 //destructor
 Player::~Player()
 {
-    cout << "The object for Player " << name << " has been destroyed." << endl;
+    cout << "Player " << name << " has been destroyed." << endl;
 }
 
 //takeDamage function
@@ -71,4 +63,17 @@ int Player::getAttackPower() const
 void Player::displayStatus() const
 {
     cout << name << " - HP: " << health << "/" << maxHealth << endl;
+}
+
+void Player::showInventory() const
+{
+    inventory.display();
+}
+
+void Player::addItem(const Item &item)
+{
+    inventory.addItem(item);
+    cout << name << " found a ";
+    item.display();
+    cout << endl;
 }

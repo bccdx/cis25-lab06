@@ -6,23 +6,23 @@ using namespace std;
 int main()
 {
     Player hero;
-    Player wizard("Bruce", 120, 15);
+
     cout << endl;
 
-    cout << "--- Initial Status ---" << endl;
-    hero.displayStatus();
-    wizard.displayStatus();
+    Item sword("Sword", 10);
+    Item shield("Shield", 15);
+    Item belt("Belt", 5);
+
+    cout << "--- Adding items to " << hero.getName() << "'s inventory ---" << endl;
+    hero.addItem(sword);
+    hero.addItem(shield);
     cout << endl;
 
-    cout << "--- Hero takes damage! ---" << endl;
-    hero.takeDamage(25);
-    hero.displayStatus();
+    cout << "--- " << hero.getName() << "'s Inventory ---" << endl;
+    hero.showInventory();
     cout << endl;
 
-    cout << "--- Wizard takes damage! ---" << endl;
-    wizard.takeDamage(150);
-    wizard.displayStatus();
-    cout << endl;
+    cout << "Total items added to inventories: " << Item::getTotalItems() << endl;
 
     return 0;
 }
