@@ -1,87 +1,140 @@
-# CIS 25 - Lab 6: Console RPG (Part 1)
+# CIS 25 – Lab 7: Console RPG (Part 2)
 
 ## Objective
 
-This is the first lab in a larger project to build a console-based Role-Playing Game (RPG). Today, you will lay the foundation by creating a `Player` class. The goal is to apply your understanding of object-oriented programming by defining a class, using access specifiers, implementing constructors and methods, and separating your code into specification and implementation files.
+This lab continues our RPG project by building a dynamic inventory system. You will apply advanced C++ class features, including static members, class aggregation to give your Player an inventory, and a destructor to manage dynamic memory correctly.
 
-## Part 1: The Class Specification (Player.h)
+## Before You Begin
 
-Your first task is to define the "blueprint" for our `Player` object in a header file. This file will declare what a `Player` is and what it can do, without getting into the details of *how* it does it.
+Please make sure you have made a commit in your old repository with all of your previous work.
 
-1. **Create a New Project**: Create a new project named `ConsoleRPG`.
-2. **Create the Header File**: Inside your project, create a new C/C++ Header File named `Player.h`.
-3. **Define the `Player` Class**: Inside `Player.h`, write the complete class definition. It must include:
-   - An **include guard** (see the lecture notes for what this is)
-   - **private members** (these are the internal attributes of the player):
-     - `name` (a `std::string`)
-     - `health` (an `int`)
-     - `maxHealth` (an `int`)
-     - `attackPower` (an `int`)
-   - **public members** (Function Prototypes Only) — these are the actions the player can perform and the ways we can interact with it:
-     - A default constructor: `Player();`
-     - An overloaded constructor that accepts a name, health, and attack power: `Player(std::string name, int health, int attackPower);`
-     - A destructor: `~Player();`
-     - A method to inflict damage on the player: `void takeDamage(int damage);`
-     - Accessor (getter) functions for each member variable. These must be marked as `const` (e.g., `std::string getName() const;`, `int getHealth() const;`, etc.).
-     - A helper function to display the player's current status: `void displayStatus() const;`
+## Part 1: The Item Class (10 points)
 
-## Part 2: The Class Implementation (Player.cpp)
+First, we need a blueprint for all the items in our game world.
 
-Now you will write the definitions for all the member functions you declared in `Player.h`.
+1. **Create the Files**: In your `ConsoleRPG` project, create `Item.h` and `Item.cpp`.
+2. **Define the `Item` Class**:
+   - In `Item.h`, create a class named `Item`.
+   - Add a private static `int` member variable named `totalItems` to track how many items have been added to inventories.
+   - Add private instance members: `name` (string) and `value` (int).
+   - Add a public constructor with the signature `Item(std::string name = "Scrap", int value = 0);`
+   - Add a public static member function with the signature `static int getTotalItems();`
+   - Add a public static member function with the signature `static void incrementTotalItems();` This will allow the `Inventory` class to update the counter when an item is added.
+   - Add accessor (getter) functions for `name` and `value`. These must be marked as `const`.
+   - Add a public method to display the item with the signature `void display() const;` It should print the item in the format: `[Name] (Value: [Value])`
 
-1. **Create the Implementation File**: In your project, create a new C/C++ Source File named `Player.cpp`.
-2. **Implement the Functions**: Inside `Player.cpp`, you must:
-   - `#include` the `Player.h` header file and any other necessary libraries like `<iostream>`.
-   - Use the scope resolution operator `::` to define each function.
-   - **Default Constructor**: Initialize the player with default stats: `name` `"Hero"`, `health` `100`, `maxHealth` `100`, and `attackPower` `10`.
-   - **Overloaded Constructor**: Initialize the player's `name`, `health`, and `attackPower` with the provided parameter values. Set `maxHealth` to be equal to the starting health.
-   - **Destructor**: Print a simple message, like `"The object for Player [name] has been destroyed."`.
-   - **`takeDamage(int damage)`**: This function should subtract the `damage` amount from the player's `health`. Also:
-     - Add logic to ensure health never drops below `0`.
-     - Add logic to print `"[name] falls to the ground, defeated."` if taking damage brings the player's health to `0`.
-   - **Getter Functions**: Each getter should simply return the value of its corresponding member variable.
-   - **`displayStatus()` Function**: This function should print the player's current status to the console in a clean format, like: `"[Name] - HP: [health]/[maxHealth]"`.
+3. **Implement the `Item` Class**:
+   - In `Item.cpp`, define and initialize `static int Item::totalItems` to `0`.
+   - Implement your constructor using a **member initialization list** to initialize `name` and `value` from the parameters.
 
-## Part 3: The Game Engine (main.cpp)
+     **Member Initialization List**: Instead of assigning to member variables inside the constructor body, use the initialization list syntax after the constructor signature:
 
-Your `main` function will serve as the testbed for your `Player` class.
+     ```cpp
+     Item::Item(std::string name, int value)
+         : name(name), value(value)   // <-- initialization list
+     {
+         // constructor body (empty for now)
+     }
+     ```
 
-1. **Include Header**: Make sure to `#include "Player.h"` at the top of `main.cpp`.
-2. **Create Player Objects**:
-   - Create a `Player` object named `hero` using the default constructor.
-   - Create another `Player` object named `wizard` using the overloaded constructor. Give the wizard a name of your choice, `120` health, and `15` attack power.
-3. **Test the Methods**:
-   - Display the initial status of both the `hero` and the `wizard` by calling their `displayStatus()` methods.
-   - Simulate the `hero` taking `25` damage by calling the `takeDamage()` method.
-   - Display the `hero`'s status again to confirm their health has changed.
-   - Simulate the `wizard` taking a massive `150` damage hit.
-   - Display the `wizard`'s status to confirm their health is `0` and not a negative number.
+     This is more efficient because it initializes the members directly rather than default-constructing them first and then reassigning. For `std::string` in particular, it avoids creating an empty string and then copying over it.
 
-## Sample Output
+   - Implement the `getTotalItems` and `incrementTotalItems` functions.
+   - Implement the `display` function.
 
-Your final output should look very similar to this:
+## Part 2: The Inventory Class (15 points)
+
+This class will manage a collection of items using dynamic memory.
+
+1. **Create the Files**: Create `Inventory.h` and `Inventory.cpp`.
+2. **Define the `Inventory` Class**:
+   - In `Inventory.h`, create a class named `Inventory`.
+   - Add private members: `items` (a pointer to an `Item` array), `capacity` (an `int`), and `itemCount` (an `int`).
+   - Add a public constructor with the signature `Inventory(int capacity);`
+   - Add a destructor with the signature `~Inventory();`
+   - Add a method to add an item with the signature `bool addItem(const Item& item);`
+   - Add a method to display the inventory with the signature `void display() const;`
+
+3. **Implement the `Inventory` Class**:
+   - In `Inventory.cpp`, implement all the declared functions.
+   - Your constructor should use a **member initialization list** to initialize `capacity` and `itemCount` (to `0`), and dynamically allocate the `items` array.
+
+     **Member Initialization List**: You can initialize all three members in the list, including the dynamic allocation with `new`:
+
+     ```cpp
+     Inventory::Inventory(int capacity)
+         : items(new Item[capacity]),
+           capacity(capacity),
+           itemCount(0)
+     {
+         // constructor body (empty – all work done in init list)
+     }
+     ```
+
+     Since `new` is an expression that returns a pointer, it works in the initialization list just like any other value.
+
+   - Your **destructor** must free the dynamically allocated memory.
+   - `addItem` should add an item if there is capacity, returning `true` on success and `false` if the inventory is full. On success, it should also call `Item::incrementTotalItems()` and print a message like `"An item was added: [Name]"`. It should also increment the `itemCount` on the `Inventory`.
+
+## Part 3: Aggregation in Player (10 points)
+
+Now, we will modify the `Player` class to integrate the `Inventory`.
+
+1. **Modify the `Player` Class**:
+   - In `Player.h`, `#include "Inventory.h"` and add a private member variable: `inventory` (an `Inventory` object).
+   - Add a new public method to display the inventory with the signature `void showInventory() const;`
+   - Add a new public method to add an item with the signature `void addItem(const Item& item);`
+
+2. **Implement the New Player Functions**:
+   - In `Player.cpp`, implement the `showInventory` function. It should call the `Inventory`’s `display` method.
+   - Update your `Player` constructor to use a **member initialization list** that passes a capacity value to the `inventory` member. Since `Inventory` has no default constructor (it requires a `capacity` argument), the initialization list is required here—the code will not compile without it:
+
+     ```cpp
+     Player::Player(std::string name, int health)
+         : name(name), health(health), inventory(10)
+     {
+         cout << "Default constructor called for Player." << endl;
+     }
+     ```
+
+     This is the key example of **class aggregation**: when one class contains another as a member, the outer class’s constructor must initialize the inner object via the initialization list. If the inner class has no default constructor, the initialization list is the only way to construct it.
+
+   - Implement the `addItem` function. It should call the `Inventory`’s `addItem` method.
+
+## Part 4: The Game Engine (main.cpp) (5 points)
+
+Update your `main` function to test all the new features.
+
+1. Create a `Player` object named `hero`.
+2. Create several `Item` objects, including at least one that will **not** be added to the player’s inventory.
+3. Add items to the `hero`’s inventory using the `Player`’s `addItem` method.
+4. Display the `hero`’s inventory.
+5. Test the static member by printing the total number of items created using `Item::getTotalItems()`.
+
+## Sample Interaction
+
 ```
-Default constructor called.
-Overloaded constructor called.
+Default constructor called for Player.
 
---- Initial Status ---
-[Hero] - HP: 100/100
-[Gandalf] - HP: 120/120
+--- Adding items to hero's inventory ---
+An item was added: Sword
+Hero found a [Sword] (Value: 10)
+An item was added: Shield
+Hero found a [Shield] (Value: 15)
 
---- Hero takes damage! ---
-[Hero] - HP: 75/100
+--- Hero's Inventory ---
+Inventory (2/5):
+  [Sword] (Value: 10)
+  [Shield] (Value: 15)
 
---- Wizard takes damage! ---
-[Gandalf] - HP: 0/120
+Total items added to inventories: 2
 
-Gandalf falls to the ground, defeated.
-
-The object for Player Gandalf has been destroyed.
-The object for Player Hero has been destroyed.
+Player Hero has been destroyed.
+Inventory for Hero has been destroyed.
 ```
+
 ## Submission Guidelines
 
-1. As always, please submit a **Git repository**.
-2. There should be **three separate files** in the repo: `Player.h`, `Player.cpp`, and `main.cpp`.
-3. Ensure your code is **well-commented** and that your `Player` class is fully encapsulated (private data, public methods).
-4. Make sure your program **compiles and runs** without errors.
+- You will submit the **SAME Git repository** as last time, but with the updated code.
+- Make a commit with all the work from Part 2.
+- Make sure your program **compiles and runs** without errors.
