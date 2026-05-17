@@ -11,6 +11,8 @@ private:
     int health;
     int maxHealth;
     int attackPower;
+    int x;
+    int y;
     Inventory inventory;
 
 public:
@@ -26,12 +28,18 @@ public:
     int getHealth() const;
     int getMaxHealth() const;
     int getAttackPower() const;
+    int getX() const;
+    int getY() const;
 
     void displayStatus() const;
 
     void showInventory() const;
 
     void addItem(const Item& item);
+
+    void setX(int x);
+
+    void setY(int y);
 };
 
 #endif //CONSOLERPG_PLAYER_H
